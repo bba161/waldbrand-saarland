@@ -3,7 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Aktuelle Waldbrandgefahr im Saarland</title>
+  <title>Waldbrandgefahr im Saarland</title>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -13,7 +18,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
       background: #fff;
       color: #222;
       max-width: 860px;
@@ -22,15 +27,18 @@
     }
 
     h1 {
-      font-size: 1.5rem;
+      font-size: 1.75rem;
       font-weight: 800;
+      line-height: 1.2;
       margin-bottom: 6px;
+      color: #004d8b;
     }
 
     .subtitle {
       font-size: 0.95rem;
-      color: #444;
-      margin-bottom: 14px;
+      font-weight: 500;
+      color: #555;
+      margin-bottom: 16px;
     }
 
     /* ── Legende ─────────────────────────────────── */
@@ -44,27 +52,28 @@
     .pill {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 4px 12px;
+      gap: 7px;
+      padding: 5px 13px;
       border-radius: 4px;
-      font-size: 0.82rem;
-      font-weight: 700;
+      font-size: 0.8rem;
+      font-weight: 600;
       color: #fff;
     }
 
     .pill-dot {
-      width: 10px;
-      height: 10px;
+      width: 9px;
+      height: 9px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.55);
+      background: rgba(255,255,255,0.5);
       flex-shrink: 0;
     }
 
-    .pill-1 { background: #f5c518; color: #333; }
-    .pill-2 { background: #e88a00; }
-    .pill-3 { background: #d95f00; }
-    .pill-4 { background: #c0390a; }
-    .pill-5 { background: #8b1a00; }
+    /* Überarbeitetes Farbschema: klarer unterscheidbar, Gelb heller */
+    .pill-1 { background: #ffe066; color: #5a4000; }
+    .pill-2 { background: #f4a020; color: #fff; }
+    .pill-3 { background: #e05c00; color: #fff; }
+    .pill-4 { background: #b81c0a; color: #fff; }
+    .pill-5 { background: #6b0000; color: #fff; }
 
     /* ── Karte ───────────────────────────────────── */
     #map {
@@ -74,87 +83,131 @@
       overflow: hidden;
     }
 
-    /* Grauer Karten-Tile-Filter */
-    .leaflet-tile {
-      filter: grayscale(100%) brightness(1.05);
+    /* Leaflet-Attributionsbutton ausblenden */
+    .leaflet-control-attribution {
+      display: none !important;
     }
 
-    /* ── Tooltip / Popup ─────────────────────────── */
-    .wbi-popup {
-      font-family: 'Helvetica Neue', Arial, sans-serif;
-      font-size: 0.88rem;
-      min-width: 190px;
-    }
-
-    .wbi-popup .station-label {
-      font-size: 0.78rem;
-      color: #555;
-      margin-bottom: 1px;
-    }
-
-    .wbi-popup .station-name {
-      font-size: 1rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .wbi-popup .forecast-label {
-      font-size: 0.78rem;
-      color: #555;
-      margin-bottom: 6px;
-    }
-
-    .wbi-popup .day-row {
-      display: flex;
-      gap: 5px;
-      align-items: flex-end;
-      margin-bottom: 4px;
-    }
-
-    .wbi-popup .day-block {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-    }
-
-    .wbi-popup .day-square {
-      width: 28px;
-      height: 28px;
-      border-radius: 3px;
-    }
-
-    .wbi-popup .day-label {
-      font-size: 0.7rem;
-      color: #555;
-    }
-
-    /* ── Leaflet popup overrides ─────────────────── */
+    /* ── Popup ───────────────────────────────────── */
     .leaflet-popup-content-wrapper {
-      border-radius: 6px;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+      border-radius: 8px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.15);
       padding: 0;
+      border: none;
     }
 
     .leaflet-popup-content {
-      margin: 14px 16px;
+      margin: 0;
+      width: auto !important;
     }
 
     .leaflet-popup-tip-container {
       display: none;
     }
 
+    .wbi-popup {
+      font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+      min-width: 210px;
+      padding: 16px 18px 14px;
+    }
+
+    /* Kopfzeile mit farbigem Status-Balken */
+    .wbi-popup-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .wbi-status-bar {
+      width: 5px;
+      border-radius: 3px;
+      flex-shrink: 0;
+      align-self: stretch;
+      min-height: 38px;
+    }
+
+    .wbi-header-text {
+      flex: 1;
+    }
+
+    .wbi-popup .station-eyebrow {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #888;
+      margin-bottom: 2px;
+    }
+
+    .wbi-popup .station-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #111;
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+
+    .wbi-popup .current-danger {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 3px;
+      color: #fff;
+    }
+
+    /* Sonderfall: Stufe 1 dunklere Schrift */
+    .wbi-popup .current-danger.level-1 {
+      color: #5a4000;
+    }
+
+    /* Prognose-Bereich */
+    .wbi-popup .forecast-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #888;
+      margin-bottom: 8px;
+    }
+
+    .wbi-popup .day-row {
+      display: flex;
+      gap: 6px;
+      align-items: flex-end;
+    }
+
+    .wbi-popup .day-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .wbi-popup .day-square {
+      width: 30px;
+      height: 30px;
+      border-radius: 4px;
+    }
+
+    .wbi-popup .day-label {
+      font-size: 0.68rem;
+      font-weight: 500;
+      color: #777;
+    }
+
     /* ── Footer ──────────────────────────────────── */
     .footer {
       margin-top: 10px;
-      font-size: 0.8rem;
-      color: #555;
-      line-height: 1.5;
+      font-size: 0.78rem;
+      color: #777;
+      line-height: 1.6;
     }
 
-    .footer a {
-      color: inherit;
-    }
+    .footer a { color: inherit; }
 
     .error-msg {
       margin-top: 12px;
@@ -169,7 +222,7 @@
 </head>
 <body>
 
-  <h1>Aktuelle Waldbrandgefahr im Saarland</h1>
+  <h1>Waldbrandgefahr im Saarland</h1>
   <p class="subtitle">Gefahrenprognose des Deutschen Wetterdienstes (DWD) für Messstationen im Saarland.</p>
 
   <!-- Legende -->
@@ -187,11 +240,12 @@
   <div class="footer" id="footer">
     Grundlage der Prognose ist der Waldbrandgefahrenindex (WBI). Die Karte wird von März bis Oktober täglich aktualisiert.<br>
     <span id="data-timestamp">Daten werden geladen…</span> &bull; Quelle: <a href="https://www.wettergefahren.de/warnungen/indizes/waldbrand.html" target="_blank" rel="noopener">Deutscher Wetterdienst (DWD)</a>
+    &bull; Karte: &copy; <a href="https://stadiamaps.com/" target="_blank" rel="noopener">Stadia Maps</a>, &copy; <a href="https://stamen.com/" target="_blank" rel="noopener">Stamen Design</a>, &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>
   </div>
 
 <script>
 // ═══════════════════════════════════════════════════════════════
-// Koordinaten der Saarland-Messstationen (DWD-Stationsnamen)
+// Koordinaten der Saarland-Messstationen
 // ═══════════════════════════════════════════════════════════════
 const STATIONS = {
   "Weiskirchen/Saar":         { lat: 49.5542, lng: 6.8192 },
@@ -204,14 +258,14 @@ const STATIONS = {
 };
 
 // ═══════════════════════════════════════════════════════════════
-// Farben nach WBI-Stufe
+// Überarbeitetes Farbschema – klarer unterscheidbar, Gelb heller
 // ═══════════════════════════════════════════════════════════════
 const COLORS = {
-  1: "#f5c518",
-  2: "#e88a00",
-  3: "#d95f00",
-  4: "#c0390a",
-  5: "#8b1a00",
+  1: "#ffe066",  // helles Gelb
+  2: "#f4a020",  // warmes Orange
+  3: "#e05c00",  // kräftiges Dunkelorange
+  4: "#b81c0a",  // Rot
+  5: "#6b0000",  // Dunkelrot / Weinrot
 };
 
 const LABELS = {
@@ -232,13 +286,12 @@ const map = L.map("map", {
   scrollWheelZoom: true,
 });
 
-// Graue OSM-Tiles via Carto Light (nativ grau, kein Filter nötig)
+// Stadia Maps – Stamen Toner Lite
 L.tileLayer(
-  "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+  "https://tiles.stadiamaps.com/tiles/stamen_toner_lite/{z}/{x}/{y}{r}.png",
   {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
-    subdomains: "abcd",
-    maxZoom: 19,
+    attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://stamen.com/">Stamen Design</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 20,
   }
 ).addTo(map);
 
@@ -247,6 +300,7 @@ L.tileLayer(
 // ═══════════════════════════════════════════════════════════════
 function makeCircle(lat, lng, wbiToday, stationName, days, values) {
   const color = COLORS[wbiToday] || "#999";
+  const label = LABELS[wbiToday] || "";
 
   const circle = L.circleMarker([lat, lng], {
     radius: 9,
@@ -256,7 +310,7 @@ function makeCircle(lat, lng, wbiToday, stationName, days, values) {
     fillOpacity: 1,
   }).addTo(map);
 
-  // Popup-Inhalt im SWR-Stil
+  // Prognose-Kästchen
   const daySquares = days.map((d, i) => {
     const v = values[i];
     const c = COLORS[v] || "#ccc";
@@ -267,18 +321,27 @@ function makeCircle(lat, lng, wbiToday, stationName, days, values) {
       </div>`;
   }).join("");
 
+  // Aktueller Status-Badge
+  const levelClass = wbiToday === 1 ? "level-1" : "";
+
   const popupHtml = `
     <div class="wbi-popup">
-      <div class="station-label">Messstation</div>
-      <div class="station-name">${stationName}</div>
-      <div class="forecast-label">Prognose für die nächsten Tage</div>
+      <div class="wbi-popup-header">
+        <div class="wbi-status-bar" style="background:${color};"></div>
+        <div class="wbi-header-text">
+          <div class="station-eyebrow">Messstation</div>
+          <div class="station-name">${stationName}</div>
+          <span class="current-danger ${levelClass}" style="background:${color};">${label}</span>
+        </div>
+      </div>
+      <div class="forecast-label">Prognose nächste Tage</div>
       <div class="day-row">${daySquares}</div>
     </div>`;
 
   circle.bindPopup(popupHtml, {
     closeButton: false,
     offset: [0, -5],
-    maxWidth: 260,
+    maxWidth: 280,
   });
 
   circle.on("mouseover", function () { this.openPopup(); });
@@ -289,11 +352,9 @@ function makeCircle(lat, lng, wbiToday, stationName, days, values) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// DWD-Seite laden und parsen
+// Daten laden
 // ═══════════════════════════════════════════════════════════════
 async function loadData() {
-  // Zuerst versuchen wir, die statisch generierte JSON zu laden
-  // (wird von GitHub Actions erzeugt – siehe data/waldbrand.json)
   const jsonUrl = "./data/waldbrand.json";
   const dwdUrl  = "https://www.wettergefahren.de/warnungen/indizes/waldbrand.html";
 
@@ -308,7 +369,7 @@ async function loadData() {
     }
   } catch (_) { /* weiter */ }
 
-  // 2) Direkter Fetch über CORS-Proxy
+  // 2) Fallback: CORS-Proxy
   if (!data) {
     try {
       const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(dwdUrl)}`;
@@ -338,14 +399,11 @@ function parseDWD(html) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
 
-  // Alle Tabellen durchgehen, Saarland-Tabelle finden
   const headings = doc.querySelectorAll("h3");
   let saartable = null;
-  let daysHeader = [];
 
   for (const h of headings) {
     if (h.textContent.includes("Saarland")) {
-      // Nächste Tabelle nach der Überschrift
       let el = h.nextElementSibling;
       while (el && el.tagName !== "TABLE") el = el.nextElementSibling;
       saartable = el;
@@ -362,11 +420,7 @@ function parseDWD(html) {
   rows.forEach((row, ri) => {
     const cells = Array.from(row.querySelectorAll("th, td")).map(c => c.textContent.trim());
     if (ri === 0) {
-      // Header: Stationsname | Tag1 | Tag2 | ...
-      days = cells.slice(1).map(d => {
-        // "Do 30.07." → "Do"
-        return d.split(" ")[0];
-      });
+      days = cells.slice(1).map(d => d.split(" ")[0]);
       return;
     }
     if (cells.length < 2) return;
@@ -376,7 +430,6 @@ function parseDWD(html) {
     stations.push({ name, days, values });
   });
 
-  // Datum aus Seite
   const timeMatch = html.match(/erstellt\s+([\d.]+\s+[\d:]+)\s+UTC/);
   const timestamp = timeMatch ? timeMatch[1] + " UTC" : null;
 
@@ -395,18 +448,17 @@ function renderMap(data) {
       console.warn("Keine Koordinaten für:", name);
       return;
     }
-    const useDays = d || days;
-    makeCircle(coords.lat, coords.lng, values[0], name, useDays, values);
+    makeCircle(coords.lat, coords.lng, values[0], name, d || days, values);
   });
 
-  // Zeitstempel setzen
+  // Nur das Datum (TT.MM.JJJJ) aus dem Zeitstempel extrahieren
+  let dateLabel = "heute";
   if (timestamp) {
-    document.getElementById("data-timestamp").textContent =
-      `Grafik: Datenstand ${timestamp}`;
-  } else {
-    document.getElementById("data-timestamp").textContent =
-      `Grafik: Datenstand heute`;
+    const m = timestamp.match(/(\d{2}\.\d{2}\.\d{4})/);
+    if (m) dateLabel = m[1];
   }
+  document.getElementById("data-timestamp").textContent =
+    `Grafik: Datenstand ${dateLabel}`;
 }
 
 function showError(msg) {
