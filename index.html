@@ -5,12 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Waldbrandgefahr im Saarland</title>
 
-  <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-
-  <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -18,7 +15,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+      font-family: 'Inter', Arial, sans-serif;
       background: #fff;
       color: #222;
       max-width: 860px;
@@ -29,7 +26,6 @@
     h1 {
       font-size: 1.75rem;
       font-weight: 800;
-      line-height: 1.2;
       margin-bottom: 6px;
       color: #004d8b;
     }
@@ -41,7 +37,6 @@
       margin-bottom: 16px;
     }
 
-    /* ── Legende ─────────────────────────────────── */
     .legend-pills {
       display: flex;
       flex-wrap: wrap;
@@ -61,8 +56,7 @@
     }
 
     .pill-dot {
-      width: 9px;
-      height: 9px;
+      width: 9px; height: 9px;
       border-radius: 50%;
       background: rgba(255,255,255,0.5);
       flex-shrink: 0;
@@ -74,7 +68,6 @@
     .pill-4 { background: #b81c0a; }
     .pill-5 { background: #6b0000; }
 
-    /* ── Karte ───────────────────────────────────── */
     #map {
       width: 100%;
       height: 540px;
@@ -82,33 +75,70 @@
       overflow: hidden;
     }
 
+    /* Leaflet-Attribution & Ukraine-Logo ausblenden */
     .leaflet-control-attribution { display: none !important; }
 
-    /* ── Haupt-Popup (Klick, bleibt stehen) ─────── */
+    /* Popup */
     .leaflet-popup-content-wrapper {
       border-radius: 8px;
       box-shadow: 0 6px 24px rgba(0,0,0,0.15);
       padding: 0;
       border: none;
     }
-
-    .leaflet-popup-content {
-      margin: 0;
-      width: auto !important;
-    }
-
+    .leaflet-popup-content { margin: 0; width: auto !important; }
     .leaflet-popup-tip-container { display: none; }
-
-    /* Schließen-Button aufräumen */
     .leaflet-popup-close-button {
       font-size: 18px !important;
-      color: #999 !important;
+      color: #aaa !important;
       top: 8px !important;
       right: 10px !important;
+      padding: 0 !important;
+      width: auto !important;
+      height: auto !important;
     }
 
+    /* Hover-Tooltip für Tages-Quadrate */
+    #day-tooltip {
+      position: fixed;
+      background: #1a1a1a;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: 5px;
+      pointer-events: none;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.12s;
+      z-index: 9999;
+      transform: translateX(-50%);
+    }
+    #day-tooltip.visible { opacity: 1; }
+
+    /* Hover-Name über Kreis */
+    #marker-label {
+      position: fixed;
+      background: #fff;
+      color: #222;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      pointer-events: none;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.1s;
+      z-index: 9998;
+      transform: translateX(-50%);
+    }
+    #marker-label.visible { opacity: 1; }
+
+    /* Popup-Inhalt */
     .wbi-popup {
-      font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+      font-family: 'Inter', Arial, sans-serif;
       min-width: 210px;
       padding: 16px 18px 14px;
     }
@@ -145,7 +175,6 @@
       font-size: 1rem;
       font-weight: 700;
       color: #111;
-      line-height: 1.2;
       margin-bottom: 5px;
     }
 
@@ -157,7 +186,6 @@
       border-radius: 3px;
       color: #fff;
     }
-
     .current-danger.level-1 { color: #5a4000; }
 
     .forecast-label {
@@ -169,18 +197,13 @@
       margin-bottom: 8px;
     }
 
-    .day-row {
-      display: flex;
-      gap: 6px;
-      align-items: flex-end;
-    }
+    .day-row { display: flex; gap: 6px; align-items: flex-end; }
 
     .day-block {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 4px;
-      position: relative;
     }
 
     .day-square {
@@ -190,8 +213,6 @@
       cursor: default;
       transition: transform 0.1s, box-shadow 0.1s;
     }
-
-    /* Hover-Highlight auf den Tages-Quadraten */
     .day-square:hover {
       transform: scale(1.15);
       box-shadow: 0 2px 8px rgba(0,0,0,0.25);
@@ -203,49 +224,12 @@
       color: #777;
     }
 
-    /* ── Hover-Tooltip für Tages-Quadrate ────────── */
-    #day-tooltip {
-      position: fixed;
-      background: #1a1a1a;
-      color: #fff;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.75rem;
-      font-weight: 500;
-      padding: 5px 10px;
-      border-radius: 5px;
-      pointer-events: none;
-      white-space: nowrap;
-      opacity: 0;
-      transition: opacity 0.12s;
-      z-index: 9999;
-      transform: translateX(-50%);
-    }
-
-    #day-tooltip.visible { opacity: 1; }
-
-    /* ── Hover-Tooltip für Marker (flüchtig) ─────── */
-    .leaflet-tooltip {
-      font-family: 'Inter', sans-serif;
-      font-size: 0.78rem;
-      font-weight: 600;
-      background: #fff;
-      border: none;
-      border-radius: 5px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-      padding: 4px 10px;
-      color: #222;
-    }
-
-    .leaflet-tooltip::before { display: none; }
-
-    /* ── Footer ──────────────────────────────────── */
     .footer {
       margin-top: 10px;
       font-size: 0.78rem;
       color: #777;
       line-height: 1.6;
     }
-
     .footer a { color: inherit; }
 
     .error-msg {
@@ -261,33 +245,31 @@
 </head>
 <body>
 
-  <h1>Waldbrandgefahr im Saarland</h1>
-  <p class="subtitle">Gefahrenprognose des Deutschen Wetterdienstes (DWD) für Messstationen im Saarland.</p>
+<h1>Waldbrandgefahr im Saarland</h1>
+<p class="subtitle">Gefahrenprognose des Deutschen Wetterdienstes (DWD) für Messstationen im Saarland.</p>
 
-  <div class="legend-pills">
-    <span class="pill pill-1"><span class="pill-dot"></span>Sehr geringe Gefahr</span>
-    <span class="pill pill-2"><span class="pill-dot"></span>Geringe Gefahr</span>
-    <span class="pill pill-3"><span class="pill-dot"></span>Mittlere Gefahr</span>
-    <span class="pill pill-4"><span class="pill-dot"></span>Hohe Gefahr</span>
-    <span class="pill pill-5"><span class="pill-dot"></span>Sehr hohe Gefahr</span>
-  </div>
+<div class="legend-pills">
+  <span class="pill pill-1"><span class="pill-dot"></span>Sehr geringe Gefahr</span>
+  <span class="pill pill-2"><span class="pill-dot"></span>Geringe Gefahr</span>
+  <span class="pill pill-3"><span class="pill-dot"></span>Mittlere Gefahr</span>
+  <span class="pill pill-4"><span class="pill-dot"></span>Hohe Gefahr</span>
+  <span class="pill pill-5"><span class="pill-dot"></span>Sehr hohe Gefahr</span>
+</div>
 
-  <div id="map"></div>
-  <div class="error-msg" id="error-msg"></div>
+<div id="map"></div>
+<div class="error-msg" id="error-msg"></div>
 
-  <!-- Schwebendes Tooltip für Tages-Quadrate -->
-  <div id="day-tooltip"></div>
+<!-- Schwebende Labels -->
+<div id="day-tooltip"></div>
+<div id="marker-label"></div>
 
-  <div class="footer" id="footer">
-    Grundlage der Prognose ist der Waldbrandgefahrenindex (WBI). Die Karte wird von März bis Oktober täglich aktualisiert.<br>
-    <span id="data-timestamp">Daten werden geladen…</span> &bull; Quelle: <a href="https://www.wettergefahren.de/warnungen/indizes/waldbrand.html" target="_blank" rel="noopener">Deutscher Wetterdienst (DWD)</a>
-    &bull; Karte: &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors
-  </div>
+<div class="footer" id="footer">
+  Grundlage der Prognose ist der Waldbrandgefahrenindex (WBI). Die Karte wird von März bis Oktober täglich aktualisiert.<br>
+  <span id="data-timestamp">Daten werden geladen…</span> &bull; Quelle: <a href="https://www.wettergefahren.de/warnungen/indizes/waldbrand.html" target="_blank" rel="noopener">Deutscher Wetterdienst (DWD)</a>
+  &bull; Karte: &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors
+</div>
 
 <script>
-// ═══════════════════════════════════════════════════════════════
-// Koordinaten der Saarland-Messstationen
-// ═══════════════════════════════════════════════════════════════
 const STATIONS = {
   "Weiskirchen/Saar":         { lat: 49.5542, lng: 6.8192 },
   "Perl-Nennig":              { lat: 49.4794, lng: 6.3814 },
@@ -314,29 +296,7 @@ const LABELS = {
   5: "Sehr hohe Gefahr",
 };
 
-// ═══════════════════════════════════════════════════════════════
-// Schwebendes Tooltip für Tages-Quadrate
-// ═══════════════════════════════════════════════════════════════
-const dayTip = document.getElementById("day-tooltip");
-
-function showDayTip(e, text) {
-  dayTip.textContent = text;
-  dayTip.classList.add("visible");
-  moveDayTip(e);
-}
-
-function moveDayTip(e) {
-  dayTip.style.left = e.clientX + "px";
-  dayTip.style.top  = (e.clientY - 38) + "px";
-}
-
-function hideDayTip() {
-  dayTip.classList.remove("visible");
-}
-
-// ═══════════════════════════════════════════════════════════════
-// Karte initialisieren
-// ═══════════════════════════════════════════════════════════════
+// ── Karte ────────────────────────────────────────
 const map = L.map("map", {
   center: [49.38, 6.90],
   zoom: 9,
@@ -344,19 +304,45 @@ const map = L.map("map", {
   scrollWheelZoom: true,
 });
 
-// OpenStreetMap Humanitarian – kein API-Key nötig
-L.tileLayer(
-  "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
-  {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    subdomains: "abc",
-    maxZoom: 19,
-  }
-).addTo(map);
+L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  subdomains: "abc",
+  maxZoom: 19,
+}).addTo(map);
 
-// ═══════════════════════════════════════════════════════════════
-// Kreis-Marker erstellen
-// ═══════════════════════════════════════════════════════════════
+// ── Hover-Label für Stationsnamen ────────────────
+const markerLabel = document.getElementById("marker-label");
+
+function showMarkerLabel(e, name) {
+  markerLabel.textContent = name;
+  markerLabel.classList.add("visible");
+  moveMarkerLabel(e.originalEvent);
+}
+function moveMarkerLabel(e) {
+  markerLabel.style.left = e.clientX + "px";
+  markerLabel.style.top  = (e.clientY - 38) + "px";
+}
+function hideMarkerLabel() {
+  markerLabel.classList.remove("visible");
+}
+
+// ── Hover-Tooltip für Tages-Quadrate ─────────────
+const dayTip = document.getElementById("day-tooltip");
+
+function showDayTip(e, text) {
+  dayTip.textContent = text;
+  dayTip.classList.add("visible");
+  moveDayTip(e);
+}
+function moveDayTip(e) {
+  dayTip.style.left = e.clientX + "px";
+  dayTip.style.top  = (e.clientY - 42) + "px";
+}
+function hideDayTip() {
+  dayTip.classList.remove("visible");
+}
+
+// ── Marker erstellen ─────────────────────────────
 function makeCircle(lat, lng, wbiToday, stationName, days, values) {
   const color = COLORS[wbiToday] || "#999";
   const label = LABELS[wbiToday] || "";
@@ -368,32 +354,21 @@ function makeCircle(lat, lng, wbiToday, stationName, days, values) {
     weight: 1.5,
     fillColor: color,
     fillOpacity: 1,
+    // interactive muss true sein (Standard)
   }).addTo(map);
 
-  // Leaflet-Tooltip: erscheint beim Hover über den Kreis, verschwindet beim Klick
-  circle.bindTooltip(stationName, {
-    permanent: false,
-    direction: "top",
-    offset: [0, -10],
-    opacity: 1,
-  });
-
-  // Popup-Inhalt: Prognose-Kästchen mit Hover-Events
+  // Prognose-Kästchen
   const daySquares = days.map((d, i) => {
     const v = values[i];
     const c = COLORS[v] || "#ccc";
     const lbl = LABELS[v] || "";
-    // data-* Attribute für JS-Tooltip
-    return `
-      <div class="day-block">
-        <div class="day-square"
-             style="background:${c};"
-             data-label="${lbl}"
-             onmouseenter="showDayTip(event,'${lbl}')"
-             onmousemove="moveDayTip(event)"
-             onmouseleave="hideDayTip()"></div>
-        <span class="day-label">${d}</span>
-      </div>`;
+    return `<div class="day-block">
+      <div class="day-square" style="background:${c};"
+           onmouseenter="showDayTip(event,'${lbl}')"
+           onmousemove="moveDayTip(event)"
+           onmouseleave="hideDayTip()"></div>
+      <span class="day-label">${d}</span>
+    </div>`;
   }).join("");
 
   const popupHtml = `
@@ -410,6 +385,7 @@ function makeCircle(lat, lng, wbiToday, stationName, days, values) {
       <div class="day-row">${daySquares}</div>
     </div>`;
 
+  // Popup: bleibt stehen, schließt sich NUR über das X
   circle.bindPopup(popupHtml, {
     closeButton: true,
     offset: [0, -8],
@@ -418,31 +394,35 @@ function makeCircle(lat, lng, wbiToday, stationName, days, values) {
     closeOnClick: false,
   });
 
-  // Karte: Klick auf Karte soll Popup NICHT schließen
-  map.on("click", function () { /* nichts tun */ });
-
-  circle.on("click", function (e) {
-    L.DomEvent.stopPropagation(e); // verhindert, dass Kartenklick-Event feuert
-    this.closeTooltip();
-    this.openPopup();
-  });
-
-  circle.on("mouseover", function () {
+  // Hover → Stationsname anzeigen (nur wenn Popup zu)
+  circle.on("mouseover", function (e) {
     if (!this.isPopupOpen()) {
-      this.openTooltip();
+      showMarkerLabel(e, stationName);
     }
   });
-
+  circle.on("mousemove", function (e) {
+    if (!this.isPopupOpen()) {
+      moveMarkerLabel(e.originalEvent);
+    }
+  });
   circle.on("mouseout", function () {
-    this.closeTooltip();
+    hideMarkerLabel();
+  });
+
+  // Klick → Popup öffnen; Label verstecken
+  circle.on("click", function (e) {
+    L.DomEvent.stopPropagation(e);
+    hideMarkerLabel();
+    this.openPopup();
   });
 
   return circle;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// Daten laden
-// ═══════════════════════════════════════════════════════════════
+// ── Karten-Klick schließt kein Popup ─────────────
+map.on("click", function () { /* absichtlich leer */ });
+
+// ── Daten laden ──────────────────────────────────
 async function loadData() {
   const jsonUrl = "./data/waldbrand.json";
   const dwdUrl  = "https://www.wettergefahren.de/warnungen/indizes/waldbrand.html";
@@ -450,7 +430,7 @@ async function loadData() {
 
   try {
     const res = await fetch(jsonUrl, { cache: "no-cache" });
-    if (res.ok) { data = await res.json(); }
+    if (res.ok) data = await res.json();
   } catch (_) {}
 
   if (!data) {
@@ -465,20 +445,18 @@ async function loadData() {
   }
 
   if (!data) {
-    showError("Daten konnten nicht geladen werden. Bitte später erneut versuchen.");
+    showError("Daten konnten nicht geladen werden.");
     return;
   }
   renderMap(data);
 }
 
-// ═══════════════════════════════════════════════════════════════
-// HTML parsen → Saarland
-// ═══════════════════════════════════════════════════════════════
+// ── DWD-HTML parsen ──────────────────────────────
 function parseDWD(html) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
-
   let saartable = null;
+
   for (const h of doc.querySelectorAll("h3")) {
     if (h.textContent.includes("Saarland")) {
       let el = h.nextElementSibling;
@@ -503,14 +481,11 @@ function parseDWD(html) {
     stations.push({ name, days, values });
   });
 
-  const timeMatch = html.match(/erstellt\s+([\d.]+\s+[\d:]+)\s+UTC/);
-  const timestamp = timeMatch ? timeMatch[1] + " UTC" : null;
-  return { stations, days, timestamp };
+  const m = html.match(/erstellt\s+([\d.]+\s+[\d:]+)\s+UTC/);
+  return { stations, days, timestamp: m ? m[1] + " UTC" : null };
 }
 
-// ═══════════════════════════════════════════════════════════════
-// Karte befüllen
-// ═══════════════════════════════════════════════════════════════
+// ── Karte befüllen ───────────────────────────────
 function renderMap(data) {
   const { stations, days, timestamp } = data;
 
@@ -525,14 +500,12 @@ function renderMap(data) {
     const m = timestamp.match(/(\d{2}\.\d{2}\.\d{4})/);
     if (m) dateLabel = m[1];
   }
-  document.getElementById("data-timestamp").textContent =
-    `Grafik: Datenstand ${dateLabel}`;
+  document.getElementById("data-timestamp").textContent = `Grafik: Datenstand ${dateLabel}`;
 }
 
 function showError(msg) {
-  const el = document.getElementById("error-msg");
-  el.style.display = "block";
-  el.textContent = msg;
+  document.getElementById("error-msg").style.display = "block";
+  document.getElementById("error-msg").textContent = msg;
   document.getElementById("data-timestamp").textContent = "Daten nicht verfügbar.";
 }
 
