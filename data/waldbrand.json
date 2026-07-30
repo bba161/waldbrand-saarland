@@ -1,40 +1,124 @@
 {
-  "timestamp": "30.07.2026 04:14 UTC",
+  "timestamp": "30.07.2026 16:48 UTC",
   "stations": [
     {
       "name": "Weiskirchen/Saar",
-      "days": ["Do", "Fr", "Sa", "So", "Mo"],
-      "values": [4, 3, 2, 3, 3]
+      "days": [
+        "Do30.07.",
+        "Fr31.07.",
+        "Sa01.08.",
+        "So02.08.",
+        "Mo03.08."
+      ],
+      "values": [
+        4,
+        3,
+        2,
+        3,
+        3
+      ]
     },
     {
       "name": "Perl-Nennig",
-      "days": ["Do", "Fr", "Sa", "So", "Mo"],
-      "values": [4, 3, 3, 3, 3]
+      "days": [
+        "Do30.07.",
+        "Fr31.07.",
+        "Sa01.08.",
+        "So02.08.",
+        "Mo03.08."
+      ],
+      "values": [
+        4,
+        3,
+        3,
+        3,
+        3
+      ]
     },
     {
       "name": "Tholey",
-      "days": ["Do", "Fr", "Sa", "So", "Mo"],
-      "values": [4, 3, 2, 3, 3]
+      "days": [
+        "Do30.07.",
+        "Fr31.07.",
+        "Sa01.08.",
+        "So02.08.",
+        "Mo03.08."
+      ],
+      "values": [
+        4,
+        3,
+        2,
+        3,
+        3
+      ]
     },
     {
       "name": "Neunkirchen-Wellesweiler",
-      "days": ["Do", "Fr", "Sa", "So", "Mo"],
-      "values": [4, 3, 2, 3, 3]
+      "days": [
+        "Do30.07.",
+        "Fr31.07.",
+        "Sa01.08.",
+        "So02.08.",
+        "Mo03.08."
+      ],
+      "values": [
+        4,
+        3,
+        2,
+        3,
+        3
+      ]
     },
     {
       "name": "Berus",
-      "days": ["Do", "Fr", "Sa", "So", "Mo"],
-      "values": [4, 3, 3, 3, 3]
+      "days": [
+        "Do30.07.",
+        "Fr31.07.",
+        "Sa01.08.",
+        "So02.08.",
+        "Mo03.08."
+      ],
+      "values": [
+        4,
+        3,
+        3,
+        3,
+        3
+      ]
     },
     {
       "name": "Saarbrücken-Burbach",
-      "days": ["Do", "Fr", "Sa", "So", "Mo"],
-      "values": [4, 3, 3, 4, 3]
+      "days": [
+        "Do30.07.",
+        "Fr31.07.",
+        "Sa01.08.",
+        "So02.08.",
+        "Mo03.08."
+      ],
+      "values": [
+        4,
+        3,
+        3,
+        4,
+        3
+      ]
     },
     {
       "name": "Saarbrücken (Flughafen)",
-      "days": ["Do", "Fr", "Sa", "So", "Mo"],
-      "values": [4, 3, 3, 3, 3]
+      "days": [
+        "Do30.07.",
+        "Fr31.07.",
+        "Sa01.08.",
+        "So02.08.",
+        "Mo03.08."
+      ],
+      "values": [
+        4,
+        3,
+        3,
+        3,
+        3
+      ]
     }
   ]
 }
