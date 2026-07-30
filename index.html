@@ -411,23 +411,20 @@ function makeCircle(lat, lng, wbiToday, stationName, days, values) {
     </div>`;
 
   circle.bindPopup(popupHtml, {
-    closeButton: true,   // Schließen-X sichtbar
+    closeButton: true,
     offset: [0, -8],
     maxWidth: 280,
-    autoClose: false,    // bleibt offen beim Klick auf andere Marker
-    closeOnClick: false, // Klick auf Karte schließt NICHT
+    autoClose: false,
+    closeOnClick: false,
   });
 
-  // Hover → Tooltip-Name (Leaflet-Tooltip)
-  // Klick → Popup öffnen/schließen
-  circle.on("click", function () {
-    if (this.isPopupOpen()) {
-      this.closePopup();
-    } else {
-      this.openPopup();
-      // Leaflet-Tooltip beim offenen Popup ausblenden
-      this.closeTooltip();
-    }
+  // Karte: Klick auf Karte soll Popup NICHT schließen
+  map.on("click", function () { /* nichts tun */ });
+
+  circle.on("click", function (e) {
+    L.DomEvent.stopPropagation(e); // verhindert, dass Kartenklick-Event feuert
+    this.closeTooltip();
+    this.openPopup();
   });
 
   circle.on("mouseover", function () {
@@ -438,11 +435,6 @@ function makeCircle(lat, lng, wbiToday, stationName, days, values) {
 
   circle.on("mouseout", function () {
     this.closeTooltip();
-  });
-
-  // Wenn Popup geschlossen wird, Tooltip wieder erlauben
-  circle.on("popupclose", function () {
-    // nichts nötig – Tooltip wird beim nächsten Hover automatisch geöffnet
   });
 
   return circle;
