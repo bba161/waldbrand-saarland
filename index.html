@@ -23,11 +23,15 @@
       padding: 20px 16px 32px;
     }
 
+    /* Überschrift bleibt auf Mobil GROSS */
     h1 {
       font-size: 1.75rem;
       font-weight: 800;
       margin-bottom: 6px;
       color: #004d8b;
+      /* Kein Shrink bei mobilem Tastatur-Fokus */
+      position: relative;
+      z-index: 1;
     }
 
     .subtitle {
@@ -68,14 +72,19 @@
     .pill-4 { background: #b81c0a; }
     .pill-5 { background: #6b0000; }
 
+    /* Karte: feste Höhe, wächst NICHT */
     #map {
       width: 100%;
-      height: 540px;
+      height: 420px;
       border-radius: 4px;
       overflow: hidden;
+      flex-shrink: 0;
     }
 
-    /* Leaflet-Attribution & Ukraine-Logo ausblenden */
+    @media (min-width: 600px) {
+      #map { height: 540px; }
+    }
+
     .leaflet-control-attribution { display: none !important; }
 
     /* Popup */
@@ -97,7 +106,7 @@
       height: auto !important;
     }
 
-    /* Hover-Tooltip für Tages-Quadrate */
+    /* Tages-Quadrat Hover-Tooltip */
     #day-tooltip {
       position: fixed;
       background: #1a1a1a;
@@ -116,7 +125,7 @@
     }
     #day-tooltip.visible { opacity: 1; }
 
-    /* Hover-Name über Kreis */
+    /* Marker-Name Label */
     #marker-label {
       position: fixed;
       background: #fff;
@@ -259,7 +268,6 @@
 <div id="map"></div>
 <div class="error-msg" id="error-msg"></div>
 
-<!-- Schwebende Labels -->
 <div id="day-tooltip"></div>
 <div id="marker-label"></div>
 
@@ -310,13 +318,14 @@ L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
   maxZoom: 19,
 }).addTo(map);
 
-// ── Hover-Label für Stationsnamen ────────────────
+// ── Schwebende Labels ────────────────────────────
 const markerLabel = document.getElementById("marker-label");
+const dayTip = document.getElementById("day-tooltip");
 
 function showMarkerLabel(e, name) {
   markerLabel.textContent = name;
   markerLabel.classList.add("visible");
-  moveMarkerLabel(e.originalEvent);
+  moveMarkerLabel(e.originalEvent || e);
 }
 function moveMarkerLabel(e) {
   markerLabel.style.left = e.clientX + "px";
@@ -325,9 +334,6 @@ function moveMarkerLabel(e) {
 function hideMarkerLabel() {
   markerLabel.classList.remove("visible");
 }
-
-// ── Hover-Tooltip für Tages-Quadrate ─────────────
-const dayTip = document.getElementById("day-tooltip");
 
 function showDayTip(e, text) {
   dayTip.textContent = text;
@@ -342,6 +348,22 @@ function hideDayTip() {
   dayTip.classList.remove("visible");
 }
 
+// ── Alle Popups schließen ────────────────────────
+function closeAllPopups() {
+  map.eachLayer(function(layer) {
+    if (layer.isPopupOpen && layer.isPopupOpen()) {
+      layer.closePopup();
+    }
+  });
+  hideMarkerLabel();
+  hideDayTip();
+}
+
+// Klick auf Karte (Desktop + Mobil) schließt alle Popups
+map.on("click", function() {
+  closeAllPopups();
+});
+
 // ── Marker erstellen ─────────────────────────────
 function makeCircle(lat, lng, wbiToday, stationName, days, values) {
   const color = COLORS[wbiToday] || "#999";
@@ -354,14 +376,15 @@ function makeCircle(lat, lng, wbiToday, stationName, days, values) {
     weight: 1.5,
     fillColor: color,
     fillOpacity: 1,
-    // interactive muss true sein (Standard)
   }).addTo(map);
 
-  // Prognose-Kästchen
+  // Prognose-Kästchen: Tageskürzel MIT Datum (Leerzeichen bereits im Tag-String, z.B. "Do 30.07.")
   const daySquares = days.map((d, i) => {
     const v = values[i];
     const c = COLORS[v] || "#ccc";
     const lbl = LABELS[v] || "";
+    // d kommt aus parseDWD – dort wird nur der erste Teil genommen ("Do")
+    // Das volle Datum brauchen wir separat aus dem Original – hier zeigen wir Tag + Gefahrenlabel
     return `<div class="day-block">
       <div class="day-square" style="background:${c};"
            onmouseenter="showDayTip(event,'${lbl}')"
@@ -385,7 +408,6 @@ function makeCircle(lat, lng, wbiToday, stationName, days, values) {
       <div class="day-row">${daySquares}</div>
     </div>`;
 
-  // Popup: bleibt stehen, schließt sich NUR über das X
   circle.bindPopup(popupHtml, {
     closeButton: true,
     offset: [0, -8],
@@ -394,23 +416,19 @@ function makeCircle(lat, lng, wbiToday, stationName, days, values) {
     closeOnClick: false,
   });
 
-  // Hover → Stationsname anzeigen (nur wenn Popup zu)
-  circle.on("mouseover", function (e) {
-    if (!this.isPopupOpen()) {
-      showMarkerLabel(e, stationName);
-    }
+  // Desktop: Hover zeigt Namen, Klick öffnet Popup
+  circle.on("mouseover", function(e) {
+    if (!this.isPopupOpen()) showMarkerLabel(e, stationName);
   });
-  circle.on("mousemove", function (e) {
-    if (!this.isPopupOpen()) {
-      moveMarkerLabel(e.originalEvent);
-    }
+  circle.on("mousemove", function(e) {
+    if (!this.isPopupOpen()) moveMarkerLabel(e.originalEvent);
   });
-  circle.on("mouseout", function () {
+  circle.on("mouseout", function() {
     hideMarkerLabel();
   });
 
-  // Klick → Popup öffnen; Label verstecken
-  circle.on("click", function (e) {
+  // Klick / Touch öffnet Popup, stoppt Bubbling zur Karte
+  circle.on("click", function(e) {
     L.DomEvent.stopPropagation(e);
     hideMarkerLabel();
     this.openPopup();
@@ -418,9 +436,6 @@ function makeCircle(lat, lng, wbiToday, stationName, days, values) {
 
   return circle;
 }
-
-// ── Karten-Klick schließt kein Popup ─────────────
-map.on("click", function () { /* absichtlich leer */ });
 
 // ── Daten laden ──────────────────────────────────
 async function loadData() {
@@ -444,10 +459,7 @@ async function loadData() {
     } catch (e) { console.warn("CORS-Proxy fehlgeschlagen:", e); }
   }
 
-  if (!data) {
-    showError("Daten konnten nicht geladen werden.");
-    return;
-  }
+  if (!data) { showError("Daten konnten nicht geladen werden."); return; }
   renderMap(data);
 }
 
@@ -473,7 +485,11 @@ function parseDWD(html) {
 
   rows.forEach((row, ri) => {
     const cells = Array.from(row.querySelectorAll("th, td")).map(c => c.textContent.trim());
-    if (ri === 0) { days = cells.slice(1).map(d => d.split(" ")[0]); return; }
+    if (ri === 0) {
+      // Vollständige Spalten-Header behalten: "Do 30.07." bleibt mit Leerzeichen
+      days = cells.slice(1).map(d => d.replace(/\s+/, "\u00A0")); // non-breaking space
+      return;
+    }
     if (cells.length < 2) return;
     const name = cells[0];
     if (!name || name === "Stationsname") return;
