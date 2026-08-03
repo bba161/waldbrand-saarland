@@ -2,9 +2,10 @@ name: Waldbrand-Daten aktualisieren
 
 on:
   schedule:
-    # Zweimal täglich: 6:30 Uhr und 14:30 Uhr (UTC) = 8:30 / 16:30 MESZ
-    - cron: "30 6 * * *"
-    - cron: "30 12 * * *"
+    # Zweimal täglich: 6:00 Uhr und 11:00 Uhr (UTC) = ca. 8:00 / 13:00 MESZ
+    # Hinweis: GitHub Actions startet Cron-Jobs oft mit bis zu 30 Min. Verzögerung
+    - cron: "0 6 * * *"
+    - cron: "0 11 * * *"
   workflow_dispatch: # manueller Start jederzeit möglich
 
 permissions:
@@ -16,10 +17,10 @@ jobs:
 
     steps:
       - name: Repository auschecken
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Python einrichten
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
