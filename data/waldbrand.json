@@ -1,14 +1,14 @@
 {
-  "timestamp": "09.10.2026 16:47 UTC",
+  "timestamp": "10.10.2026 11:01 UTC",
   "stations": [
     {
       "name": "Weiskirchen/Saar",
       "days": [
-        "Fr09.10.",
         "Sa10.10.",
         "So11.10.",
         "Mo12.10.",
-        "Di13.10."
+        "Di13.10.",
+        "Mi14.10."
       ],
       "values": [
         1,
@@ -21,11 +21,11 @@
     {
       "name": "Perl-Nennig",
       "days": [
-        "Fr09.10.",
         "Sa10.10.",
         "So11.10.",
         "Mo12.10.",
-        "Di13.10."
+        "Di13.10.",
+        "Mi14.10."
       ],
       "values": [
         1,
@@ -38,11 +38,11 @@
     {
       "name": "Tholey",
       "days": [
-        "Fr09.10.",
         "Sa10.10.",
         "So11.10.",
         "Mo12.10.",
-        "Di13.10."
+        "Di13.10.",
+        "Mi14.10."
       ],
       "values": [
         1,
@@ -55,11 +55,11 @@
     {
       "name": "Neunkirchen-Wellesweiler",
       "days": [
-        "Fr09.10.",
         "Sa10.10.",
         "So11.10.",
         "Mo12.10.",
-        "Di13.10."
+        "Di13.10.",
+        "Mi14.10."
       ],
       "values": [
         1,
@@ -72,11 +72,11 @@
     {
       "name": "Berus",
       "days": [
-        "Fr09.10.",
         "Sa10.10.",
         "So11.10.",
         "Mo12.10.",
-        "Di13.10."
+        "Di13.10.",
+        "Mi14.10."
       ],
       "values": [
         1,
@@ -89,28 +89,28 @@
     {
       "name": "Saarbrücken-Burbach",
       "days": [
-        "Fr09.10.",
         "Sa10.10.",
         "So11.10.",
         "Mo12.10.",
-        "Di13.10."
+        "Di13.10.",
+        "Mi14.10."
       ],
       "values": [
         1,
         1,
         1,
         1,
-        1
+        2
       ]
     },
     {
       "name": "Saarbrücken (Flughafen)",
       "days": [
-        "Fr09.10.",
         "Sa10.10.",
         "So11.10.",
         "Mo12.10.",
-        "Di13.10."
+        "Di13.10.",
+        "Mi14.10."
       ],
       "values": [
         1,
