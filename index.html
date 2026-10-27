@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
   <title>Waldbrandgefahr im Saarland</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -12,144 +13,195 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
+    /* ── Farben (hell / dunkel) ─────────────────────── */
+    :root {
+      --bg: #ffffff;
+      --text: #222428;
+      --muted: #5f6670;
+      --subtle: #8a929c;
+      --accent: #004d8b;
+      --surface: #ffffff;
+      --border: #e6e9ed;
+      --map-bg: #e9edf1;
+      --tip-bg: #1a1a1a;
+      --tip-text: #ffffff;
+      --warn-bg: #fff3cd;
+      --warn-border: #ffc107;
+      --warn-text: #5a4000;
+      --tile-filter: none;
+      --shadow: 0 6px 24px rgba(0,0,0,0.15);
+      --square-ring: rgba(0,0,0,0.12);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #121417;
+        --text: #e6e8eb;
+        --muted: #aab2bc;
+        --subtle: #7d8691;
+        --accent: #7cc0f5;
+        --surface: #1c2025;
+        --border: #2c333b;
+        --map-bg: #1a1e23;
+        --tip-bg: #f2f4f6;
+        --tip-text: #111;
+        --warn-bg: #3a3112;
+        --warn-border: #7a6320;
+        --warn-text: #ffe9a6;
+        --tile-filter: invert(0.9) hue-rotate(180deg) brightness(0.85) contrast(0.95);
+        --shadow: 0 6px 24px rgba(0,0,0,0.6);
+        --square-ring: rgba(255,255,255,0.14);
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #121417;
+      --text: #e6e8eb;
+      --muted: #aab2bc;
+      --subtle: #7d8691;
+      --accent: #7cc0f5;
+      --surface: #1c2025;
+      --border: #2c333b;
+      --map-bg: #1a1e23;
+      --tip-bg: #f2f4f6;
+      --tip-text: #111;
+      --warn-bg: #3a3112;
+      --warn-border: #7a6320;
+      --warn-text: #ffe9a6;
+      --tile-filter: invert(0.9) hue-rotate(180deg) brightness(0.85) contrast(0.95);
+      --shadow: 0 6px 24px rgba(0,0,0,0.6);
+      --square-ring: rgba(255,255,255,0.14);
+    }
+
+    /* ── Grundlayout ────────────────────────────────── */
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { background: var(--bg); }
 
     body {
       font-family: 'Inter', Arial, sans-serif;
-      background: #fff;
-      color: #222;
+      background: var(--bg);
+      color: var(--text);
       max-width: 860px;
       margin: 0 auto;
-      padding: 20px 16px 32px;
+      padding: 16px 14px 24px;
+      -webkit-text-size-adjust: 100%;
     }
 
     h1 {
-      font-size: 1.75rem;
+      font-size: clamp(1.25rem, 4.5vw, 1.75rem);
       font-weight: 800;
+      line-height: 1.2;
       margin-bottom: 6px;
-      color: #004d8b;
+      color: var(--accent);
     }
 
     .subtitle {
-      font-size: 0.95rem;
+      font-size: clamp(0.85rem, 3.5vw, 0.95rem);
       font-weight: 500;
-      color: #555;
-      margin-bottom: 16px;
+      color: var(--muted);
+      margin-bottom: 14px;
+      line-height: 1.45;
     }
 
+    /* ── Legende ────────────────────────────────────── */
     .legend-pills {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .pill {
       display: inline-flex;
       align-items: center;
       gap: 7px;
-      padding: 5px 13px;
+      padding: 5px 11px;
       border-radius: 4px;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 600;
       color: #fff;
+      line-height: 1.2;
     }
 
     .pill-dot {
       width: 9px; height: 9px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.55);
       flex-shrink: 0;
     }
 
     .pill-1 { background: #ffe066; color: #5a4000; }
+    .pill-1 .pill-dot { background: rgba(90,64,0,0.35); }
     .pill-2 { background: #f4a020; }
     .pill-3 { background: #e05c00; }
     .pill-4 { background: #b81c0a; }
     .pill-5 { background: #6b0000; }
 
+    /* ── Karte ──────────────────────────────────────── */
     #map {
       width: 100%;
-      height: 420px;
-      border-radius: 4px;
+      height: 380px;
+      border-radius: 6px;
       overflow: hidden;
-      flex-shrink: 0;
+      background: var(--map-bg);
+      touch-action: pan-x pan-y;
     }
 
     @media (min-width: 600px) {
       #map { height: 540px; }
     }
 
+    .leaflet-container { font-family: 'Inter', Arial, sans-serif; background: var(--map-bg); }
+
+    /* Kacheln im Darkmode abdunkeln */
+    .leaflet-tile-pane { filter: var(--tile-filter); }
+
     .leaflet-control-attribution { display: none !important; }
 
+    .leaflet-control-zoom a {
+      background: var(--surface) !important;
+      color: var(--text) !important;
+      border-color: var(--border) !important;
+    }
+
+    /* ── Popup ──────────────────────────────────────── */
     .leaflet-popup-content-wrapper {
+      background: var(--surface);
+      color: var(--text);
       border-radius: 8px;
-      box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+      box-shadow: var(--shadow);
       padding: 0;
-      border: none;
+      border: 1px solid var(--border);
     }
     .leaflet-popup-content { margin: 0; width: auto !important; }
     .leaflet-popup-tip-container { display: none; }
     .leaflet-popup-close-button {
       font-size: 18px !important;
-      color: #aaa !important;
-      top: 8px !important;
-      right: 10px !important;
-      padding: 0 !important;
+      color: var(--subtle) !important;
+      top: 6px !important;
+      right: 8px !important;
+      padding: 4px 6px !important;
       width: auto !important;
       height: auto !important;
+      line-height: 1 !important;
     }
-
-    #day-tooltip {
-      position: fixed;
-      background: #1a1a1a;
-      color: #fff;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.75rem;
-      font-weight: 500;
-      padding: 5px 10px;
-      border-radius: 5px;
-      pointer-events: none;
-      white-space: nowrap;
-      opacity: 0;
-      transition: opacity 0.12s;
-      z-index: 9999;
-      transform: translateX(-50%);
-    }
-    #day-tooltip.visible { opacity: 1; }
-
-    #marker-label {
-      position: fixed;
-      background: #fff;
-      color: #222;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.78rem;
-      font-weight: 600;
-      padding: 4px 10px;
-      border-radius: 5px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-      pointer-events: none;
-      white-space: nowrap;
-      opacity: 0;
-      transition: opacity 0.1s;
-      z-index: 9998;
-      transform: translateX(-50%);
-    }
-    #marker-label.visible { opacity: 1; }
+    .leaflet-popup-close-button:hover { color: var(--text) !important; }
 
     .wbi-popup {
       font-family: 'Inter', Arial, sans-serif;
-      min-width: 210px;
-      padding: 16px 18px 14px;
+      width: min(280px, calc(100vw - 80px));
+      padding: 14px 16px 14px;
     }
 
     .wbi-popup-header {
       display: flex;
       align-items: flex-start;
       gap: 12px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       padding-bottom: 12px;
-      border-bottom: 1px solid #f0f0f0;
+      border-bottom: 1px solid var(--border);
+      padding-right: 16px;
     }
 
     .wbi-status-bar {
@@ -160,27 +212,28 @@
       min-height: 38px;
     }
 
-    .wbi-header-text { flex: 1; }
+    .wbi-header-text { flex: 1; min-width: 0; }
 
     .station-eyebrow {
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      color: #888;
+      color: var(--subtle);
       margin-bottom: 2px;
     }
 
     .station-name {
       font-size: 1rem;
       font-weight: 700;
-      color: #111;
-      margin-bottom: 5px;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.25;
     }
 
     .current-danger {
       display: inline-block;
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       font-weight: 600;
       padding: 2px 8px;
       border-radius: 3px;
@@ -189,58 +242,107 @@
     .current-danger.level-1 { color: #5a4000; }
 
     .forecast-label {
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      color: #888;
+      color: var(--subtle);
       margin-bottom: 8px;
     }
 
-    .day-row { display: flex; gap: 6px; align-items: flex-end; }
+    .day-row { display: flex; gap: 5px; align-items: flex-end; }
 
     .day-block {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 4px;
+      flex: 1 1 0;
+      min-width: 0;
     }
 
     .day-square {
-      width: 30px;
-      height: 30px;
+      width: 100%;
+      max-width: 30px;
+      aspect-ratio: 1 / 1;
       border-radius: 4px;
+      box-shadow: inset 0 0 0 1px var(--square-ring);
       cursor: default;
       transition: transform 0.1s, box-shadow 0.1s;
     }
     .day-square:hover {
-      transform: scale(1.15);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      transform: scale(1.12);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
 
     .day-label {
-      font-size: 0.68rem;
+      font-size: 0.62rem;
       font-weight: 500;
-      color: #777;
+      color: var(--muted);
       white-space: nowrap;
+      line-height: 1.15;
+      text-align: center;
     }
 
+    /* ── Hover-Labels ───────────────────────────────── */
+    #day-tooltip,
+    #marker-label {
+      position: fixed;
+      font-family: 'Inter', sans-serif;
+      pointer-events: none;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.12s;
+      z-index: 9999;
+      transform: translateX(-50%);
+    }
+
+    #day-tooltip {
+      background: var(--tip-bg);
+      color: var(--tip-text);
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+    #day-tooltip.visible { opacity: 1; }
+
+    #marker-label {
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 5px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      z-index: 9998;
+      transition: opacity 0.1s;
+    }
+    #marker-label.visible { opacity: 1; }
+
+    /* ── Fußzeile / Fehler ──────────────────────────── */
     .footer {
       margin-top: 10px;
-      font-size: 0.78rem;
-      color: #777;
+      font-size: 0.76rem;
+      color: var(--muted);
       line-height: 1.6;
     }
-    .footer a { color: inherit; }
+    .footer a { color: var(--accent); }
 
     .error-msg {
       margin-top: 12px;
       padding: 10px 14px;
-      background: #fff3cd;
-      border: 1px solid #ffc107;
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
       border-radius: 4px;
       font-size: 0.85rem;
+      color: var(--warn-text);
       display: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
     }
   </style>
 </head>
@@ -257,19 +359,27 @@
   <span class="pill pill-5"><span class="pill-dot"></span>Sehr hohe Gefahr</span>
 </div>
 
-<div id="map"></div>
-<div class="error-msg" id="error-msg"></div>
+<div id="map" role="region" aria-label="Karte mit Waldbrandgefahr je Messstation"></div>
+<div class="error-msg" id="error-msg" role="alert"></div>
 
 <div id="day-tooltip"></div>
 <div id="marker-label"></div>
 
-<div class="footer" id="footer">
+<div class="footer">
   Grundlage der Prognose ist der Waldbrandgefahrenindex (WBI). Die Karte wird von März bis Oktober täglich aktualisiert.<br>
   <span id="data-timestamp">Daten werden geladen…</span> &bull; Quelle: <a href="https://www.wettergefahren.de/warnungen/indizes/waldbrand.html" target="_blank" rel="noopener">Deutscher Wetterdienst (DWD)</a>
   &bull; Karte: &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors
 </div>
 
 <script>
+// ── Theme-Override per URL (?theme=dark / ?theme=light) ──
+(function () {
+  const forced = new URLSearchParams(location.search).get("theme");
+  if (forced === "dark" || forced === "light") {
+    document.documentElement.dataset.theme = forced;
+  }
+})();
+
 const STATIONS = {
   "Weiskirchen/Saar":         { lat: 49.5542, lng: 6.8192 },
   "Perl-Nennig":              { lat: 49.4794, lng: 6.3814 },
@@ -280,13 +390,7 @@ const STATIONS = {
   "Saarbrücken (Flughafen)":  { lat: 49.2147, lng: 7.1097 },
 };
 
-const COLORS = {
-  1: "#ffe066",
-  2: "#f4a020",
-  3: "#e05c00",
-  4: "#b81c0a",
-  5: "#6b0000",
-};
+const COLORS = { 1: "#ffe066", 2: "#f4a020", 3: "#e05c00", 4: "#b81c0a", 5: "#6b0000" };
 
 const LABELS = {
   1: "Sehr geringe Gefahr",
@@ -296,12 +400,15 @@ const LABELS = {
   5: "Sehr hohe Gefahr",
 };
 
+const isMobile = window.innerWidth < 600;
+
 // ── Karte ────────────────────────────────────────
 const map = L.map("map", {
   center: [49.38, 6.90],
-  zoom: 9,
+  zoom: isMobile ? 8 : 9,
   zoomControl: true,
-  scrollWheelZoom: true,
+  scrollWheelZoom: false,   // verhindert ungewolltes Zoomen beim Scrollen der Seite
+  tap: true,
 });
 
 L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
@@ -309,6 +416,10 @@ L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
   subdomains: "abc",
   maxZoom: 19,
 }).addTo(map);
+
+// Mausrad-Zoom nur mit Fokus auf der Karte
+map.on("focus", () => map.scrollWheelZoom.enable());
+map.on("blur",  () => map.scrollWheelZoom.disable());
 
 // ── Labels ────────────────────────────────────────
 const markerLabel = document.getElementById("marker-label");
@@ -338,14 +449,12 @@ function hideDayTip() { dayTip.classList.remove("visible"); }
 
 // ── Alle Popups schließen ─────────────────────────
 function closeAllPopups() {
-  map.eachLayer(function(l) {
+  map.eachLayer(function (l) {
     if (l.isPopupOpen && l.isPopupOpen()) l.closePopup();
   });
   hideMarkerLabel();
   hideDayTip();
 }
-
-// Klick auf Karte schließt alle Popups
 map.on("click", closeAllPopups);
 
 // ── Marker erstellen ──────────────────────────────
@@ -355,24 +464,27 @@ function makeCircle(lat, lng, wbiToday, stationName, days, values) {
   const lvlCls = wbiToday === 1 ? "level-1" : "";
 
   const circle = L.circleMarker([lat, lng], {
-    radius: 9,
+    radius: isMobile ? 11 : 9,          // größere Trefferfläche auf Touch-Geräten
     color: "#fff",
     weight: 1.5,
     fillColor: color,
     fillOpacity: 1,
   }).addTo(map);
 
-  // Prognose-Kästchen – vollständiges Datum als Label (z.B. "Mo 03.08.")
+  // Prognose-Kästchen: Wochentag und Datum untereinander
   const daySquares = days.map((d, i) => {
     const v   = values[i];
     const c   = COLORS[v] || "#ccc";
     const lbl = LABELS[v] || "";
+    const parts = String(d).split(/\s|\u00A0/);
+    const dayName = parts[0] || "";
+    const dayDate = parts.slice(1).join(" ");
     return `<div class="day-block">
       <div class="day-square" style="background:${c};"
            onmouseenter="showDayTip(event,'${lbl}')"
            onmousemove="moveDayTip(event)"
            onmouseleave="hideDayTip()"></div>
-      <span class="day-label">${d}</span>
+      <span class="day-label">${dayName}<br>${dayDate}</span>
     </div>`;
   }).join("");
 
@@ -393,25 +505,25 @@ function makeCircle(lat, lng, wbiToday, stationName, days, values) {
   circle.bindPopup(popupHtml, {
     closeButton: true,
     offset: [0, -8],
-    maxWidth: 280,
+    maxWidth: isMobile ? Math.min(300, window.innerWidth - 40) : 320,
     autoClose: false,
     closeOnClick: false,
   });
 
   // Hover → Stationsname (nur wenn kein Popup offen)
-  circle.on("mouseover", function(e) {
+  circle.on("mouseover", function (e) {
     if (!this.isPopupOpen()) showMarkerLabel(e, stationName);
   });
-  circle.on("mousemove", function(e) {
+  circle.on("mousemove", function (e) {
     if (!this.isPopupOpen()) moveMarkerLabel(e.originalEvent);
   });
-  circle.on("mouseout", function() { hideMarkerLabel(); });
+  circle.on("mouseout", function () { hideMarkerLabel(); });
 
   // Klick: erst alle anderen schließen, dann eigenes öffnen
-  circle.on("click", function(e) {
+  circle.on("click", function (e) {
     L.DomEvent.stopPropagation(e);
     hideMarkerLabel();
-    map.eachLayer(function(l) {
+    map.eachLayer(function (l) {
       if (l !== circle && l.isPopupOpen && l.isPopupOpen()) l.closePopup();
     });
     this.openPopup();
@@ -469,7 +581,6 @@ function parseDWD(html) {
   rows.forEach((row, ri) => {
     const cells = Array.from(row.querySelectorAll("th, td")).map(c => c.textContent.trim());
     if (ri === 0) {
-      // Vollständiges Datum behalten: "Mo 03.08." – Leerzeichen als non-breaking space
       days = cells.slice(1).map(d => d.trim().replace(" ", "\u00A0"));
       return;
     }
@@ -500,15 +611,28 @@ function renderMap(data) {
     if (m) dateLabel = m[1];
   }
   document.getElementById("data-timestamp").textContent = `Grafik: Datenstand ${dateLabel}`;
+  sendHeight();
 }
 
 function showError(msg) {
-  document.getElementById("error-msg").style.display = "block";
-  document.getElementById("error-msg").textContent = msg;
+  const box = document.getElementById("error-msg");
+  box.style.display = "block";
+  box.textContent = msg;
   document.getElementById("data-timestamp").textContent = "Daten nicht verfügbar.";
+  sendHeight();
 }
 
+// ── Höhe an einbettendes iFrame melden (Auto-Höhe) ──
+function sendHeight() {
+  if (window.parent === window) return;
+  const h = Math.ceil(document.body.getBoundingClientRect().height + 16);
+  window.parent.postMessage({ type: "waldbrand-height", height: h }, "*");
+}
+if (window.ResizeObserver) new ResizeObserver(sendHeight).observe(document.body);
+window.addEventListener("resize", () => { map.invalidateSize(); sendHeight(); });
+
 loadData();
+sendHeight();
 </script>
 </body>
 </html>
