@@ -1,14 +1,14 @@
 {
-  "timestamp": "23.11.2026 21:52 UTC",
+  "timestamp": "24.11.2026 15:37 UTC",
   "stations": [
     {
       "name": "Weiskirchen/Saar",
       "days": [
-        "Mo23.11.",
         "Di24.11.",
         "Mi25.11.",
         "Do26.11.",
-        "Fr27.11."
+        "Fr27.11.",
+        "Sa28.11."
       ],
       "values": [
         1,
@@ -21,11 +21,11 @@
     {
       "name": "Perl-Nennig",
       "days": [
-        "Mo23.11.",
         "Di24.11.",
         "Mi25.11.",
         "Do26.11.",
-        "Fr27.11."
+        "Fr27.11.",
+        "Sa28.11."
       ],
       "values": [
         1,
@@ -38,11 +38,11 @@
     {
       "name": "Tholey",
       "days": [
-        "Mo23.11.",
         "Di24.11.",
         "Mi25.11.",
         "Do26.11.",
-        "Fr27.11."
+        "Fr27.11.",
+        "Sa28.11."
       ],
       "values": [
         1,
@@ -55,11 +55,11 @@
     {
       "name": "Neunkirchen-Wellesweiler",
       "days": [
-        "Mo23.11.",
         "Di24.11.",
         "Mi25.11.",
         "Do26.11.",
-        "Fr27.11."
+        "Fr27.11.",
+        "Sa28.11."
       ],
       "values": [
         1,
@@ -72,11 +72,11 @@
     {
       "name": "Berus",
       "days": [
-        "Mo23.11.",
         "Di24.11.",
         "Mi25.11.",
         "Do26.11.",
-        "Fr27.11."
+        "Fr27.11.",
+        "Sa28.11."
       ],
       "values": [
         1,
@@ -89,28 +89,28 @@
     {
       "name": "Saarbrücken-Burbach",
       "days": [
-        "Mo23.11.",
         "Di24.11.",
         "Mi25.11.",
         "Do26.11.",
-        "Fr27.11."
+        "Fr27.11.",
+        "Sa28.11."
       ],
       "values": [
         1,
         1,
         1,
         1,
-        1
+        2
       ]
     },
     {
       "name": "Saarbrücken (Flughafen)",
       "days": [
-        "Mo23.11.",
         "Di24.11.",
         "Mi25.11.",
         "Do26.11.",
-        "Fr27.11."
+        "Fr27.11.",
+        "Sa28.11."
       ],
       "values": [
         1,
